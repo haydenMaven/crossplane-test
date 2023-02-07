@@ -1,0 +1,27 @@
+---
+apiVersion: crossplane.test.dev/v1alpha1
+kind: networkClaim
+metadata:
+  name: example
+  namespace: default
+spec:
+  parameters:
+    deletionPolicy: Delete
+    autoCreateSubnetworks: false
+    routingMode: GLOBAL
+---
+apiVersion: crossplane.test.dev/v1alpha1
+kind: networkClaim
+metadata:
+  name: example-router
+  namespace: default
+spec:
+  compositionSelector:
+    matchLabels:
+      provider: gcp
+      type: router
+  parameters:
+    deletionPolicy: Delete
+    autoCreateSubnetworks: false
+    routingMode: GLOBAL
+    region: us-central  

@@ -1,0 +1,73 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: gcp-network-router
+  labels:
+    crossplane.io/xrd: networks.crossplane.test.dev #must match definiton api route
+    provider: gcp
+    type: router
+spec:
+  compositeTypeRef:
+    apiVersion: crossplane.test.dev/v1alpha1
+    kind: network
+  resources:
+  - name: network
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Network
+    patches:
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.claimRef.name
+        strategy: string
+        string:
+          fmt: '%s-%s'
+      toFieldPath: metadata.name
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.autoCreateSubnetworks
+      toFieldPath: spec.forProvider.autoCreateSubnetworks
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.deletionPolicy
+      toFieldPath: spec.deletionPolicy
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.routingMode
+      toFieldPath: spec.forProvider.routingMode
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.claimRef.namespace
+      toFieldPath: spec.forProvider.providerConfigRef.name
+  - name: router
+    base:
+      apiVersion: compute.gcp.upbound.io/v1beta1
+      kind: Router
+      spec: 
+        forProvider:
+          networkSelector:
+            matchControllerRef: true
+    patches:
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.claimRef.name
+        - fromFieldPath: spec.parameters.region
+        strategy: string
+        string:
+          fmt: '%s-%s-%s'
+      toFieldPath: metadata.name 
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.region
+      toFieldPath: spec.forProvider.region
+      transforms: 
+      - type: map
+        map: 
+          us-central: us-central1
+          us-east: us-east1
+          us-west: us-west1
+      policy: 
+        fromFieldPath: Required
+          
+  
+
+

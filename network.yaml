@@ -1,0 +1,10 @@
+apiVersion: compute.gcp.upbound.io/v1beta1
+kind: Network
+metadata:
+  name: first-crossplane-resource-nick
+spec: 
+  forProvider:
+    autoCreateSubnetworks: false 
+    routingMode: GLOBAL
+  providerConfigRef:
+    name: crossplane-provider-gcp

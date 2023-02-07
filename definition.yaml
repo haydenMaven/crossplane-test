@@ -1,0 +1,47 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: networks.crossplane.test.dev #must match plural name
+spec:
+  group: crossplane.test.dev
+  names:
+    kind: network #name of cluster reasource
+    plural: networks
+  claimNames: 
+    kind: networkClaim
+    plural: networkclaims #must be all lowercase 
+  defaultCompositionRef:
+    name: gcp-network
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  deletionPolicy:
+                    description: DeletionPolicy specifies what will happen to the underlying external when this managed resource is deleted - either "Delete" or "Orphan" the external resource.
+                    type: string
+                    default: Delete
+                  autoCreateSubnetworks: 
+                    type: boolean
+                    description: boolean for if autocreate subnets
+                  routingMode:
+                    type: string
+                    description: The network-wide routing mode to use. If set to REGIONAL, this network's cloud routers will only advertise routes with subnetworks of this network in the same region as the router. If set to GLOBAL, this network's cloud routers will advertise routes with all subnetworks of this network, across regions. Possible values are REGIONAL and GLOBAL.  
+                  region:
+                    description: region the router lives in
+                    type: string
+                    enum: 
+                    - us-central
+                    - us-east
+                    - us-west
+            required:
+            - parameters               
